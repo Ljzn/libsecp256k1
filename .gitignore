@@ -9,3 +9,4 @@ deps/
 .rebar
 doc/
 *.tar
+.vscode

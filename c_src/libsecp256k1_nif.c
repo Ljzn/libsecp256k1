@@ -8,6 +8,7 @@
 #include "libsecp256k1-config.h"
 #include "secp256k1.c"
 #include "include/secp256k1.h"
+#include "time.h"
 #include "testrand_impl.h"
 #include "include/secp256k1_recovery.h"
 
@@ -131,7 +132,7 @@ rand32(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	ERL_NIF_TERM r;
 	unsigned char* output = enif_make_new_binary(env, 4, &r);
-	uint32_t v = secp256k1_rand32();
+	uint32_t v = secp256k1_testrand32();
     memcpy(&v, output, 4);
 	return r;
 }
@@ -141,7 +142,7 @@ rand256(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	ERL_NIF_TERM r;
 	unsigned char* output = enif_make_new_binary(env, 32, &r);
-	secp256k1_rand256(output);
+	secp256k1_testrand256(output);
 	return r;
 }
 
@@ -491,10 +492,10 @@ ecdsa_sign(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     // DER serialization may return a signature under buffer size
     // need to delay nif binary allocation
-	if (secp256k1_ecdsa_signature_serialize_der(ctx, &intermediatesig, &siglen, &signature) != 1) {
+	if (secp256k1_ecdsa_signature_serialize_der(ctx, intermediatesig, &siglen, &signature) != 1) {
 		return error_result(env, "ecdsa_signature_serialize returned 0");
 	}
-    CHECK(secp256k1_ecdsa_signature_parse_der(ctx, &signature, &intermediatesig, siglen) == 1);
+    CHECK(secp256k1_ecdsa_signature_parse_der(ctx, &signature, intermediatesig, siglen) == 1);
     finishedsig = enif_make_new_binary(env, siglen, &r); 
     memcpy(finishedsig, intermediatesig, siglen);
 	return ok_result(env, &r);
