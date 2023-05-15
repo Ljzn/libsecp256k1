@@ -9,6 +9,7 @@
 #include "secp256k1.c"
 #include "include/secp256k1.h"
 #include "include/secp256k1_extrakeys.h"
+#include "include/secp256k1_schnorrsig.h"
 #include "time.h"
 #include "testrand_impl.h"
 #include "include/secp256k1_recovery.h"
@@ -568,6 +569,43 @@ ecdsa_verify(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
+schnorr_sign(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	ERL_NIF_TERM r;
+	ErlNifBinary message, privkey;
+	int result;
+	secp256k1_keypair keypair;
+	secp256k1_pubkey pubkey;
+	secp256k1_xonly_pubkey xonly_pubkey;
+	unsigned char* sig64;
+	unsigned char* finishedsig;
+	size_t siglen = 64;
+
+	if (!enif_inspect_binary(env, argv[0], &message)) {
+       return enif_make_badarg(env);
+    }
+
+	if (!enif_inspect_binary(env, argv[1], &privkey)) {
+       return enif_make_badarg(env);
+    }
+
+	CHECK(secp256k1_keypair_create(ctx, &keypair, privkey.data) == 1);
+
+	result = secp256k1_schnorrsig_sign32(ctx, sig64, message.data,
+			&keypair, NULL);
+	if (!result) {
+		return error_result(env, "schnorr_sign returned 0");
+	}
+
+	CHECK(secp256k1_keypair_pub(ctx, &pubkey, &keypair) == 1);
+	CHECK(secp256k1_xonly_pubkey_from_pubkey(ctx, &xonly_pubkey, NULL, &pubkey) == 1);
+    CHECK(secp256k1_schnorrsig_verify(ctx, sig64, message.data, message.size, &xonly_pubkey) == 1);
+    finishedsig = enif_make_new_binary(env, siglen, &r); 
+    memcpy(finishedsig, sig64, siglen);
+	return ok_result(env, &r);
+}
+
+static ERL_NIF_TERM
 ecdsa_sign_compact(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	ERL_NIF_TERM r;
@@ -818,6 +856,8 @@ static ErlNifFunc nif_funcs[] = {
 	{"ec_pubkey_tweak_mul", 2, ec_pubkey_tweak_mul},
 	{"ecdsa_sign", 4, ecdsa_sign},
 	{"ecdsa_verify", 3, ecdsa_verify},
+	{"schnorr_sign", 2, schnorr_sign},
+	// {"schnorr_verify", 3, schnorr_verify},
 	{"ecdsa_sign_compact", 4, ecdsa_sign_compact},
 	{"ecdsa_verify_compact", 3, ecdsa_verify_compact},
 	{"ecdsa_recover_compact", 4, ecdsa_recover_compact}

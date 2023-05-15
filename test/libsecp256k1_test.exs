@@ -45,6 +45,12 @@ defmodule Libsecp256k1Test do
     assert :ok == :libsecp256k1.ecdsa_verify(msg, signature, pubkey)
   end
 
+  test "schnorr sign" do
+    msg = :crypto.strong_rand_bytes(32)
+    prv = :crypto.strong_rand_bytes(32)
+    {:ok, _signature} = :libsecp256k1.schnorr_sign(msg, prv)
+  end
+
   test "blank_msg" do
     msg = <<>>
     a = :crypto.strong_rand_bytes(32)
