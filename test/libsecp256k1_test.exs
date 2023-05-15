@@ -72,4 +72,13 @@ defmodule Libsecp256k1Test do
     assert double_hashed == :libsecp256k1.sha256(:libsecp256k1.sha256(a))
     assert double_hashed == :libsecp256k1.dsha256(a)
   end
+
+  test "ec_xonly_pubkey_tweak_add" do
+    internal_pubkey = <<0xCC8A4BC64D897BDDC5FBC2F670F7A8BA0B386779106CF1223C6FC5D7CD6FC115::256>>
+    tweak = <<0x2CA01ED85CF6B6526F73D39A1111CD80333BFDC00CE98992859848A90A6F0258::256>>
+    tweaked_key = <<0xA60869F0DBCF1DC659C9CECBAF8050135EA9E8CDC487053F1DC6880949DC684C::256>>
+
+    assert {:ok, <<_::8, ^tweaked_key::bytes-32, _y::256>>} =
+             :libsecp256k1.ec_xonly_pubkey_tweak_add(internal_pubkey, tweak)
+  end
 end

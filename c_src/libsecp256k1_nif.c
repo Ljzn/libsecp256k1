@@ -8,6 +8,7 @@
 #include "libsecp256k1-config.h"
 #include "secp256k1.c"
 #include "include/secp256k1.h"
+#include "include/secp256k1_extrakeys.h"
 #include "time.h"
 #include "testrand_impl.h"
 #include "include/secp256k1_recovery.h"
@@ -380,6 +381,42 @@ ec_pubkey_tweak_add(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 	if (secp256k1_ec_pubkey_serialize(ctx, pubkey_buf, (size_t *)&pubkey.size, &pubkeyt,
 				check_compressed(pubkey.size)) != 1) {
+		return error_result(env, "Public key serialize error");
+	}
+	
+	return ok_result(env, &r);
+}
+
+static ERL_NIF_TERM
+ec_xonly_pubkey_tweak_add(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	ERL_NIF_TERM r;
+	ErlNifBinary x_only_pubkey, tweak;
+	unsigned char* output_pubkey_buf;
+    secp256k1_xonly_pubkey x_only_pubkeyt;
+	secp256k1_pubkey pubkeyt;
+	size_t size = 65;
+
+	if (!enif_inspect_binary(env, argv[0], &x_only_pubkey)) {
+       return enif_make_badarg(env);
+    }
+
+	if (!enif_inspect_binary(env, argv[1], &tweak)) {
+       return enif_make_badarg(env);
+    }
+
+    output_pubkey_buf = enif_make_new_binary(env, size, &r); 
+
+	if (secp256k1_xonly_pubkey_parse(ctx, &x_only_pubkeyt, x_only_pubkey.data) != 1) {
+		return enif_make_badarg(env);
+	};
+
+	if (secp256k1_xonly_pubkey_tweak_add(ctx, &pubkeyt, &x_only_pubkeyt, tweak.data) != 1) {
+		return error_result(env, "ec_xonly_pubkey_tweak_add returned 0");
+	}
+
+	if (secp256k1_ec_pubkey_serialize(ctx, output_pubkey_buf, (size_t *)&size, &pubkeyt,
+				check_compressed(size)) != 1) {
 		return error_result(env, "Public key serialize error");
 	}
 	
@@ -783,6 +820,7 @@ static ErlNifFunc nif_funcs[] = {
 	{"ec_privkey_import", 1, ec_privkey_import},
 	{"ec_privkey_tweak_add", 2, ec_privkey_tweak_add},
 	{"ec_pubkey_tweak_add", 2, ec_pubkey_tweak_add},
+	{"ec_xonly_pubkey_tweak_add", 2, ec_xonly_pubkey_tweak_add},
 	{"ec_privkey_tweak_mul", 2, ec_privkey_tweak_mul},
 	{"ec_pubkey_tweak_mul", 2, ec_pubkey_tweak_mul},
 	{"ecdsa_sign", 4, ecdsa_sign},

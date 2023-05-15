@@ -27,7 +27,8 @@
 		 ecdsa_verify/3,
 		 ecdsa_sign_compact/4,
 		 ecdsa_verify_compact/3,
-		 ecdsa_recover_compact/4]).
+		 ecdsa_recover_compact/4,
+		 ec_xonly_pubkey_tweak_add/2]).
 
 -on_load(init/0).
 
@@ -36,6 +37,7 @@
 
 -type hash() :: binary().
 -type public_key() :: binary().
+-type x_only_public_key() :: binary().
 -type private_key() :: binary().
 -type compression() :: compressed | uncompressed.
 -type signature() :: binary().
@@ -94,6 +96,10 @@ ec_privkey_tweak_add(_, _) ->
 
 -spec ec_pubkey_tweak_add(public_key(), binary()) -> {ok, public_key()} | {error, string()}.
 ec_pubkey_tweak_add(_, _) ->
+	erlang:nif_error({error, not_loaded}).
+
+-spec ec_xonly_pubkey_tweak_add(x_only_public_key(), binary()) -> {ok, public_key()} | {error, string()}.
+ec_xonly_pubkey_tweak_add(_, _) ->
 	erlang:nif_error({error, not_loaded}).
 
 -spec ec_privkey_tweak_mul(private_key(), binary()) -> {ok, private_key()} | {error, string()}.
