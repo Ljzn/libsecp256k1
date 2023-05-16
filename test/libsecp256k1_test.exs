@@ -46,9 +46,24 @@ defmodule Libsecp256k1Test do
   end
 
   test "schnorr sign" do
+    {prv, xonly_pub} = generate_valid_schnorr_keypair()
     msg = :crypto.strong_rand_bytes(32)
+    {:ok, signature} = :libsecp256k1.schnorr_sign(msg, prv)
+
+    assert :ok == :libsecp256k1.schnorr_verify(msg, signature, xonly_pub)
+  end
+
+  defp generate_valid_schnorr_keypair() do
     prv = :crypto.strong_rand_bytes(32)
-    {:ok, _signature} = :libsecp256k1.schnorr_sign(msg, prv)
+    {:ok, pub} = :libsecp256k1.ec_pubkey_create(prv, :uncompressed)
+    <<_::8, xonly_pub::32-bytes, y::256>> = pub
+
+    if rem(y, 2) == 0 do
+      # y must be even
+      {prv, xonly_pub}
+    else
+      generate_valid_schnorr_keypair()
+    end
   end
 
   test "blank_msg" do

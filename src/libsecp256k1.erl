@@ -26,6 +26,7 @@
 		 ecdsa_sign/4,
 		 ecdsa_verify/3,
 		 schnorr_sign/2,
+		 schnorr_verify/3,
 		 ecdsa_sign_compact/4,
 		 ecdsa_verify_compact/3,
 		 ecdsa_recover_compact/4,
@@ -121,6 +122,10 @@ ecdsa_verify(_, _, _) ->
 
 -spec schnorr_sign(binary(), private_key()) -> {ok, signature()} | {error, string()}.
 schnorr_sign(_, _) ->
+	erlang:nif_error({error, not_loaded}).
+
+-spec schnorr_verify(binary(), signature(), public_key()) -> ok | error.
+schnorr_verify(_, _, _) ->
 	erlang:nif_error({error, not_loaded}).
 
 -spec ecdsa_sign_compact(binary(), private_key(), atom(), binary()) -> {ok, signature(), recovery_id()} | {error, string()}.

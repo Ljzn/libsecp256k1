@@ -606,6 +606,35 @@ schnorr_sign(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 }
 
 static ERL_NIF_TERM
+schnorr_verify(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	ErlNifBinary message, rawsignature, rawxonlypubkey;
+    secp256k1_ecdsa_signature signature;
+	secp256k1_xonly_pubkey xonly_pubkey;
+	int result;
+
+	if (!enif_inspect_binary(env, argv[0], &message)) {
+       return enif_make_badarg(env);
+    }
+
+	if (!enif_inspect_binary(env, argv[1], &rawsignature)) {
+       return enif_make_badarg(env);
+    }
+
+	if (!enif_inspect_binary(env, argv[2], &rawxonlypubkey)) {
+       return enif_make_badarg(env);
+    }
+
+	if (secp256k1_xonly_pubkey_parse(ctx, &xonly_pubkey, rawxonlypubkey.data) != 1) {
+		return error_result(env, "X Only Public key invalid");
+	};
+
+	result = secp256k1_schnorrsig_verify(ctx, rawsignature.data, message.data, message.size, &xonly_pubkey);
+
+	return atom_from_result(env, result);
+}
+
+static ERL_NIF_TERM
 ecdsa_sign_compact(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	ERL_NIF_TERM r;
@@ -857,7 +886,7 @@ static ErlNifFunc nif_funcs[] = {
 	{"ecdsa_sign", 4, ecdsa_sign},
 	{"ecdsa_verify", 3, ecdsa_verify},
 	{"schnorr_sign", 2, schnorr_sign},
-	// {"schnorr_verify", 3, schnorr_verify},
+	{"schnorr_verify", 3, schnorr_verify},
 	{"ecdsa_sign_compact", 4, ecdsa_sign_compact},
 	{"ecdsa_verify_compact", 3, ecdsa_verify_compact},
 	{"ecdsa_recover_compact", 4, ecdsa_recover_compact}
