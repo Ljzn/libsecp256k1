@@ -102,4 +102,12 @@ defmodule Libsecp256k1Test do
     assert {:ok, <<_::8, ^tweaked_key::bytes-32, _y::256>>} =
              :libsecp256k1.ec_xonly_pubkey_tweak_add(internal_pubkey, tweak)
   end
+
+  test "ec_privkey_tweak_add" do
+    prv = <<0x6b973d88838f27366ed61c9ad6367663045cb456e28335c109e30717ae0c6baa::256>>
+    tweak = <<0xb86e7be8f39bab32a6f2c0443abbc210f0edac0e2c53d501b36b64437d9c6c70::256>>
+    tweaked_prv = <<0x2405b971772ad26915c8dcdf10f238753a9b837e5f8e6a86fd7c0cce5b7296d9::256>>
+
+    assert {:ok, tweaked_prv} == :libsecp256k1.ec_privkey_tweak_add(prv, tweak)
+  end
 end

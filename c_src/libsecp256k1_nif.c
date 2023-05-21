@@ -338,7 +338,7 @@ ec_privkey_tweak_add(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     privkey_buf = enif_make_new_binary(env, 32, &r); 
 	memcpy(privkey_buf, privkey.data, privkey.size);
 
-	result = secp256k1_ec_privkey_tweak_add(ctx, privkey_buf, tweak.data);
+	result = secp256k1_ec_seckey_tweak_add(ctx, privkey_buf, tweak.data);
 
 	if (result == 0) {
 		return error_result(env, "ec_privkey_tweak_add returned 0");
