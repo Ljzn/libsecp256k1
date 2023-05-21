@@ -577,7 +577,7 @@ schnorr_sign(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	secp256k1_keypair keypair;
 	secp256k1_pubkey pubkey;
 	secp256k1_xonly_pubkey xonly_pubkey;
-	unsigned char* sig64;
+	unsigned char sig64[64];
 	unsigned char* finishedsig;
 	size_t siglen = 64;
 

@@ -46,11 +46,13 @@ defmodule Libsecp256k1Test do
   end
 
   test "schnorr sign" do
-    {prv, xonly_pub} = generate_valid_schnorr_keypair()
-    msg = :crypto.strong_rand_bytes(32)
-    {:ok, signature} = :libsecp256k1.schnorr_sign(msg, prv)
+    for _ <- 0..10 do
+      {prv, xonly_pub} = generate_valid_schnorr_keypair()
+      msg = :crypto.strong_rand_bytes(32)
+      {:ok, signature} = :libsecp256k1.schnorr_sign(msg, prv)
 
-    assert :ok == :libsecp256k1.schnorr_verify(msg, signature, xonly_pub)
+      assert :ok == :libsecp256k1.schnorr_verify(msg, signature, xonly_pub)
+    end
   end
 
   defp generate_valid_schnorr_keypair() do
@@ -104,9 +106,9 @@ defmodule Libsecp256k1Test do
   end
 
   test "ec_privkey_tweak_add" do
-    prv = <<0x6b973d88838f27366ed61c9ad6367663045cb456e28335c109e30717ae0c6baa::256>>
-    tweak = <<0xb86e7be8f39bab32a6f2c0443abbc210f0edac0e2c53d501b36b64437d9c6c70::256>>
-    tweaked_prv = <<0x2405b971772ad26915c8dcdf10f238753a9b837e5f8e6a86fd7c0cce5b7296d9::256>>
+    prv = <<0x6B973D88838F27366ED61C9AD6367663045CB456E28335C109E30717AE0C6BAA::256>>
+    tweak = <<0xB86E7BE8F39BAB32A6F2C0443ABBC210F0EDAC0E2C53D501B36B64437D9C6C70::256>>
+    tweaked_prv = <<0x2405B971772AD26915C8DCDF10F238753A9B837E5F8E6A86FD7C0CCE5B7296D9::256>>
 
     assert {:ok, tweaked_prv} == :libsecp256k1.ec_privkey_tweak_add(prv, tweak)
   end
