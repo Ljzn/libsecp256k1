@@ -27,6 +27,10 @@ jobs:
       with:
         elixir-version: '1.15.2' # [Required] Define the Elixir version
         otp-version: '26.0'      # [Required] Define the Erlang/OTP version
+    - run: sudo apt-get update -y
+    - run: sudo apt-get install -y libgmp-dev
+    - run: mix local.hex --force
+    - run: mix local.rebar --force
     - name: Restore dependencies cache
       uses: actions/cache@v3
       with:
