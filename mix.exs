@@ -25,7 +25,6 @@ defmodule Libsecp256k1.Mixfile do
           "README.md",
           "c_src/build_deps.sh",
           "c_src/libsecp256k1_nif.c",
-          "etest/libsecp256k1_tests.erl",
           "mix.exs",
           "priv/.empty",
           "src/libsecp256k1.erl"
@@ -41,7 +40,6 @@ defmodule Libsecp256k1.Mixfile do
 
   defp deps() do
     [
-      {:mix_erlang_tasks, "0.1.0", runtime: false},
       {:ex_doc, "~> 0.17", only: :dev, runtime: false}
     ]
   end
