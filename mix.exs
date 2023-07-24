@@ -38,6 +38,10 @@ defmodule Libsecp256k1.Mixfile do
     ]
   end
 
+  def application do
+    [extra_applications: [:crypto]]
+  end
+
   defp deps() do
     [
       {:ex_doc, "~> 0.17", only: :dev, runtime: false}
